@@ -33,9 +33,16 @@ export const signupUser = createAsyncThunk(
 );
 
 export const isLoggedIn = createAsyncThunk('user/isLoggedIn', async () => {
-  const res = await axios.get('/users/isLoggedIn');
+  try {
+    const res = await axios.get('/users/isLoggedIn');
+    return { data: res.data.data.user, auth: true };
+  } catch (error) {
+    // console.log(error);
+    throw new Error(error.response.data.message
+    );
+    // throw rejected('Log in or Sing up');
+  }
 
-  return { data: res.data.data.user, auth: true };
 });
 
 export const updateUser = createAsyncThunk('user/updateUser', async (data) => {

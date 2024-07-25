@@ -67,8 +67,8 @@ export const userSlice = createSlice({
       })
       .addCase(isLoggedIn.rejected, (state, action) => {
         state.auth = false;
-
-        toast.error(action.payload.response.data.message);
+        toast.error(action.error.message);
+        // toast.error(action.payload.response.data.message);
       })
 
       // Update user

@@ -165,6 +165,11 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
         status: 'success',
         data: { user },
       });
+    } else {
+      res.status(401).json({
+        status: 'error',
+        message: '🍪 Please log in or Singup first',
+      });
     }
   } catch (err) {
     res.status(401).json({
@@ -176,18 +181,18 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
 
 exports.restrictTo =
   (...roles) =>
-  (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new AppError(
-          '⛔ You do not have permission to perform this action!',
-          401
-        )
-      );
-    }
+    (req, res, next) => {
+      if (!roles.includes(req.user.role)) {
+        return next(
+          new AppError(
+            '⛔ You do not have permission to perform this action!',
+            401
+          )
+        );
+      }
 
-    return next();
-  };
+      return next();
+    };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
