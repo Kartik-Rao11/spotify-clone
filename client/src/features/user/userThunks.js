@@ -83,8 +83,13 @@ export const updatePassword = createAsyncThunk(
 );
 
 export const logoutUser = createAsyncThunk('user/logoutUser', async () => {
-  const res = await axios.get('users/logout');
-  toast.success(res.data.message);
+  try {
+    const res = await axios.get('users/logout');
+    toast.success(res.data.message);
+  } catch (error) {
+    console.log(error);
+  }
+
 });
 
 // Like/dislike

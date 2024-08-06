@@ -1,12 +1,13 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
+const spotifyController = require('../controllers/spotifyController');
 
 const router = express.Router();
 
 // Authentication
 router.post('/signup', authController.signUp);
-router.post('/login', authController.login);
+router.post('/login', authController.login, spotifyController.getSpotifyToken);
 router.get('/isLoggedIn', authController.isLoggedIn);
 
 router.get('/logout', authController.logout);

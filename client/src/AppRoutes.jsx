@@ -52,8 +52,8 @@ function AppRoutes() {
 
       {user.auth === false && (
         <Routes>
-          <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/forgotPassword" element={<Forgot />} />
           <Route path="/resetPassword/:id" element={<Reset />} />
           <Route path="*" element={<Loading main={true} fullHeight={true} />} />

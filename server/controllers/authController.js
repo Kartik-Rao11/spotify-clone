@@ -6,15 +6,16 @@ const catchAsync = require('../utils/catchAsync');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const Email = require('../utils/email');
+const spotifyController = require('./spotifyController');
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
   });
 
-const createSendToken = (user, statusCode, req, res) => {
+const createSendToken = async (user, statusCode, req, res) => {
   const token = signToken(user.id);
-
+  const spoftiyToken = await spotifyController.getSpotifyToken();
   const cookieOptions = {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     httpOnly: true,
@@ -23,7 +24,12 @@ const createSendToken = (user, statusCode, req, res) => {
     withCredentials: true,
   };
   res.cookie('jwt', token, cookieOptions);
-
+  res.cookie('spotifyAccessToken', spoftiyToken, {
+    expires: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true
+  })
   user.password = undefined;
 
   res.status(statusCode).json({
@@ -72,6 +78,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   createSendToken(user, 200, req, res);
+  // next();
 });
 
 exports.logout = catchAsync(async (req, res, next) => {

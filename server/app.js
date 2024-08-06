@@ -4,13 +4,14 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-
+const MongoStore = require('connect-mongo');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const songRouter = require('./routes/songRoutes');
 const userRouter = require('./routes/userRoutes');
 const playlistRouter = require('./routes/playlistRoutes');
 const searchRouter = require('./routes/searchRoutes');
+const session = require('express-session');
 
 const app = express();
 
@@ -26,6 +27,16 @@ app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(xss());
+// app.use(session({
+//   secret: 'kartik',
+//   resave: false,
+//   saveUninitialized: true,
+//   store: MongoStore.create({
+//     mongoUrl: `mongodb+srv://kartikrao29:${process.env.DB_PASSWORD}@spotify-clone-cluster.kbmwu6q.mongodb.net/`,
+//     collectionName: 'sessions'
+//   }),
+//   cookie: { secure: true } // Set to true if using HTTPS
+// }));
 
 app.use('/public', express.static('public'));
 

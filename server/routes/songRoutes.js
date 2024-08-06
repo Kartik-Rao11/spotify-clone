@@ -1,12 +1,14 @@
 const express = require('express');
 const songController = require('../controllers/songController');
 const authController = require('../controllers/authController');
-
+const spotifyController = require('../controllers/spotifyController');
+const { attachSpotifyToken } = require('../middlewares/attachSpotifyToken');
 const router = express.Router();
 
 router
   .route('/')
   .get(authController.protect, songController.getAllSongs)
+  // .get(attachSpotifyToken, spotifyController.fetchSongs)
   .post(
     authController.protect,
     authController.restrictTo('artist'),
