@@ -7,9 +7,9 @@ const router = express.Router();
 
 // Authentication
 router.post('/signup', authController.signUp);
-router.post('/login', authController.login, spotifyController.getSpotifyToken);
+router.post('/login', authController.login);
 router.get('/isLoggedIn', authController.isLoggedIn);
-
+router.get('/loginCallBack', authController.loginCallBack);
 router.get('/logout', authController.logout);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:resetToken', authController.resetPassword);

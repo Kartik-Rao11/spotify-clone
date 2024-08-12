@@ -56,3 +56,44 @@ exports.fetchSongs = catchAsync(async (req, res, next) => {
     }
 })
 
+exports.getRecommendations = catchAsync(async (req, res, next) => {
+    try {
+        const { seed_artists, seed_genres, seed_tracks } = req.query;
+
+        const response = await axios.get('https://api.spotify.com/v1/recommendations', {
+            headers: {
+                Authorization: `Bearer  ${req.spotifyAccessToken}`,
+            },
+            params: {
+                seed_artists,
+                seed_genres,
+                seed_tracks,
+                limit: 20, // You can adjust the number of recommendations
+            },
+        });
+        console.info(response.data);
+        res.status(200).json(response.data);
+    } catch (error) {
+        if (error.response) {
+            // The request was made and the server responded with a status code outside of the 2xx range
+            console.error('Spotify API error:', error.response.data);
+            res.status(error.response.status).json({
+                error: error.response.data.error.message,
+            });
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('No response received from Spotify API:', error.request);
+            res.status(500).json({
+                error: 'No response received from Spotify API',
+            });
+        } else {
+            // Something happened in setting up the request that triggered an error
+            console.error('Error setting up Spotify API request:', error.message);
+            res.status(500).json({
+                error: 'Error setting up Spotify API request',
+            });
+        }
+    }
+
+})
+

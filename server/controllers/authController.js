@@ -55,29 +55,50 @@ exports.signUp = catchAsync(async (req, res, next) => {
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return next(new AppError('🚫 Please provide email and password', 400));
+    if (!email || !password) {
+      return next(new AppError('🚫 Please provide email and password', 400));
+    }
+
+    // 2) Get the user from DB
+    const user = await User.findOne({ email })
+      .select('+password')
+      .populate('playlists')
+      .populate('followedArtists', 'name img role')
+      .populate('likedPlaylists', 'name img')
+      .populate('likedSongs');
+
+    if (!user) {
+      return next(new AppError(`🤷‍ No user found with email: ${email}`, 404));
+    }
+
+    if (!user || !(await user.checkPassword(password, user.password))) {
+      return next(new AppError('🔐 Incorrect email or password', 401));
+    }
+    let querystring = {
+      response_type: 'code',
+      client_id: process.env.SPOTIFY_CLIENT_ID,
+      scope: process.env.SCOPE,
+      redirect_uri: process.env.REDIRECT_URI
+    };
+    console.info('Sending to spotify for registration')
+    res.redirect('https://accounts.spotify.com/authorize?' +
+      JSON.stringify(querystring));
+    // try {
+    //   const authUrl = `https://accounts.spotify.com/authorize?response_type=code&client_id=${process.env.SPOTIFY_CLIENT_ID}&scope=${encodeURIComponent(process.env.SCOPE)}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}`;
+    //   res.redirect(authUrl);
+    // } catch (error) {
+    //   console.error(error);
+    // }
+
+
+
+  } catch (error) {
+    console.error(error);
   }
 
-  // 2) Get the user from DB
-  const user = await User.findOne({ email })
-    .select('+password')
-    .populate('playlists')
-    .populate('followedArtists', 'name img role')
-    .populate('likedPlaylists', 'name img')
-    .populate('likedSongs');
-
-  if (!user) {
-    return next(new AppError(`🤷‍ No user found with email: ${email}`, 404));
-  }
-
-  if (!user || !(await user.checkPassword(password, user.password))) {
-    return next(new AppError('🔐 Incorrect email or password', 401));
-  }
-
-  createSendToken(user, 200, req, res);
   // next();
 });
 
@@ -269,3 +290,13 @@ exports.deleteMe = catchAsync(async (req, res) => {
     status: 'success',
   });
 });
+
+exports.loginCallBack = catchAsync(async (req, res, next) => {
+  try {
+    console.info('Authorization successful. Logging in user');
+    createSendToken(user, 200, req, res);
+  } catch (error) {
+    console.error(error);
+  }
+
+})
